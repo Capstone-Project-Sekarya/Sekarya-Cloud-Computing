@@ -1,2 +1,2 @@
-# Sekarya_Cloud_Computing
+# sekarya-cloud-computing
 Selalu aktif
