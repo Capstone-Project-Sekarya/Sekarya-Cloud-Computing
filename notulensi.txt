@@ -1,0 +1,64 @@
+Jobdesc Bagian CC:
+
+Aplikasi Penghubung
+Github Desktop (MD & CC)
+
+=====================================================
+[1] Menghubungkan API dengan aplikasi
+
+Penting:
+    - API Login & Register (Firebase) 			---> Pray
+    - API Payment Gateway  (Midtrans)/(Sandbox) 	---> Ric
+    
+Opsional:
+    - API Email
+    - API ChatGPT/Customer Service	
+
+=====================================================
+[2] Mendeploy ML model pada Aplikasi menggunakan GCP
+
+Mendeploy ML		---> Ric
+Mendeploy Aplikasi	---> Pray
+
+Penting:
+    - App Engine (aman)
+    - Cloud Run (ini utama)(dibayar per request)
+    - Kubernets Engine (ML model)
+
+Opsional:
+    - Fast API (ML model)
+    - Compute Engine (per detik bayar)
+
+=====================================================
+[3] Setup Database (Main)
+
+Barengan (MD & CC)
+
+Penting:
+    - Firebase (Main DB)
+    - Cloud Storage
+
+Opsional:
+    - MySQL
+
+=====================================================
+[4] Framework JS
+
+Penting:
+    - Hapi
+
+Opsional:
+    - Express.js
+
+
+File utama untuk men deploy ML model:
+- .H5
+- main.py kodingan
+- prediction kodingan
+
+Tanggal 22 deadiline design
+
+- Button
+- Shadow
+- Color
+- Logo Icon
