@@ -1,7 +1,4 @@
 {
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
   "dependencies": {
     "@firebase/firestore": "^4.3.2",
     "body-parser": "^1.20.2",
@@ -13,11 +10,15 @@
     "save-dev": "^0.0.1-security",
     "uuid": "^9.0.1"
   },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
   "name": "apicapstone",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon ./src/server.js"
+    "start": "node server.js",
+    "start-dev": "nodemon server.js"
   },
   "author": "ricopa",
   "license": "ISC",

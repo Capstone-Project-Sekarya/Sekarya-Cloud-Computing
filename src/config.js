@@ -19,7 +19,6 @@ const snap = new Snap({
   clientKey: 'SB-Mid-client-zvycud_ORH9DeW03',
 });
 
-
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
