@@ -3,22 +3,24 @@ Jobdesc Bagian CC:
 Aplikasi Penghubung
 Github Desktop (MD & CC)
 
+
 =====================================================
 [1] Menghubungkan API dengan aplikasi
 
 Penting:
-    - API Login & Register (Firebase) 			---> Pray
-    - API Payment Gateway  (Midtrans)/(Sandbox) 	---> Ric
+    - API Login & Register (Firebase) 			    ---> Prayogi
+    - API Payment Gateway  (Midtrans)/(Sandbox) 	---> Rico
     
 Opsional:
     - API Email
     - API ChatGPT/Customer Service	
 
+
 =====================================================
 [2] Mendeploy ML model pada Aplikasi menggunakan GCP
 
-Mendeploy ML		---> Ric
-Mendeploy Aplikasi	---> Pray
+Mendeploy ML		---> Rico
+Mendeploy Aplikasi	---> Prayogi
 
 Penting:
     - App Engine (aman)
@@ -28,6 +30,7 @@ Penting:
 Opsional:
     - Fast API (ML model)
     - Compute Engine (per detik bayar)
+
 
 =====================================================
 [3] Setup Database (Main)
@@ -40,6 +43,7 @@ Penting:
 
 Opsional:
     - MySQL
+
 
 =====================================================
 [4] Framework JS
