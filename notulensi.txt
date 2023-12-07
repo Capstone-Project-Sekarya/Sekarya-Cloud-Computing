@@ -59,3 +59,11 @@ File utama untuk men deploy ML model:
 - .H5
 - main.py kodingan server (kalau ada)
 - prediction.py kodingan
+
+Design UI:
+
+- desain post job
+- desain melihat hire job
+- desain form untuk post job nya 
+- desain postingan di profile 
+
