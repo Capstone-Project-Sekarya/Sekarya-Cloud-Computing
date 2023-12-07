@@ -53,12 +53,5 @@ Opsional:
 
 File utama untuk men deploy ML model:
 - .H5
-- main.py kodingan
-- prediction kodingan
-
-Tanggal 22 deadiline design
-
-- Button
-- Shadow
-- Color
-- Logo Icon
+- main.py kodingan server (kalau ada)
+- prediction.py kodingan
