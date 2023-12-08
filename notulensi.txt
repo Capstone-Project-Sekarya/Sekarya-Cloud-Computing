@@ -65,5 +65,5 @@ Design UI:
 - desain post job
 - desain melihat hire job
 - desain form untuk post job nya 
-- desain postingan di profile 
+- desain tambahan postingan di profile 
 
