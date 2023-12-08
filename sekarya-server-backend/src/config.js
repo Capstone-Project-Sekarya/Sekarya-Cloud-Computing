@@ -2,6 +2,8 @@ const { initializeApp } = require('firebase/app');
 const { getAuth } = require('firebase/auth');
 const { getFirestore } = require('firebase/firestore');
 const { Snap } = require('midtrans-client');
+const { getStorage } = require('firebase/storage');
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCHDkZ5dfjnSSP7AvJCr4pEdySXQnwfRR8",
@@ -13,6 +15,7 @@ const firebaseConfig = {
   measurementId: "G-SGG9P463J1"
 };
 
+
 const snap = new Snap({
   isProduction: false,
   serverKey: 'SB-Mid-server-W8Yo8dJWaYrWCYKDVd3L0bCO',
@@ -23,6 +26,8 @@ const snap = new Snap({
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
+
 
 const UserCollection = "users";
 const ArtCollection = "art";
@@ -52,4 +57,5 @@ module.exports = {
   perantaraCollection,
   listFotoCollection,
   snap,
+  storage
 };

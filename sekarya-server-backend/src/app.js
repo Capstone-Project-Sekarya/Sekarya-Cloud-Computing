@@ -9,11 +9,26 @@ const { nanoid } = require("nanoid");
 const { storage } = require('./config');
 const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
 const multer = require('multer');
-const multerStorage = multer.memoryStorage(); 
+const multerStorage = multer.memoryStorage();
 const upload = multer({ storage: multerStorage });
 const allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+const myKey = "prayogiPalkon";
+
+
+
+const validateApiKey = (req, res, next) => {
+  console.log('Validating API Key');
+  const apiKey = req.headers['api-key'];
+
+  if (!apiKey || apiKey !== myKey) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  next();
+};
 const app = express();
 
+app.use(validateApiKey);
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -170,23 +185,29 @@ app.put('/updateProfile/:userId', upload.single('photoProfile'), async (req, res
     res.status(500).json({ message: 'Error updating user', error: error.message });
   }
 });
-
 //set list foto 
 
-app.post('/addArtToProfile', upload.single('photo'), async (req, res) => {
+app.post('/addArtToProfile', upload.single('artPhoto'), async (req, res) => {
   const {
     tags,
     userId,
   } = req.body;
+
+  const uploadDate = new Date().toISOString();
   const listId = `AR-${nanoid()}`;
   const file = req.file;
 
+  // Periksa apakah file ada
   if (!file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
 
   try {
-    // Memeriksa tipe gambar yang diizinkan
+    // Periksa apakah file.originalname ada
+    if (!file.originalname) {
+      return res.status(400).json({ message: 'File has no original name' });
+    }
+
     const fileExt = file.originalname.split('.').pop().toLowerCase();
     const contentType = allowedImageTypes.includes(`image/${fileExt}`) ? `image/${fileExt}` : 'image/jpeg';
 
@@ -199,14 +220,14 @@ app.post('/addArtToProfile', upload.single('photo'), async (req, res) => {
 
     await uploadBytes(storageRef, file.buffer, metadata);
 
-    // Dapatkan URL publik foto yang diunggah
     const photoUrl = await getDownloadURL(storageRef);
 
-    const artDocRef = await addDoc(collection(firestore, listFotoCollection), {
+    const listDocRef = await addDoc(collection(firestore, listFotoCollection), {
       listId: listId,
       photoUrl: photoUrl,
       tags: tags,
       userId: userId,
+      uploadDate: uploadDate,
     });
 
     res.send({ msg: 'Foto Ditambahkan', photoUrl: photoUrl });
@@ -215,6 +236,7 @@ app.post('/addArtToProfile', upload.single('photo'), async (req, res) => {
     res.status(500).json({ message: 'Penambahan foto gagal', error: err.message });
   }
 });
+
 
 app.get('/artProfile/:userId', async (req, res) => {
   try {
@@ -272,11 +294,17 @@ app.post('/addArt', upload.single('artPhoto'), async (req, res) => {
   const artId = `AR-${nanoid()}`;
   const file = req.file;
 
+  // Periksa apakah file ada
   if (!file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
 
   try {
+    // Periksa apakah file.originalname ada
+    if (!file.originalname) {
+      return res.status(400).json({ message: 'File has no original name' });
+    }
+
     const fileExt = file.originalname.split('.').pop().toLowerCase();
     const contentType = allowedImageTypes.includes(`image/${fileExt}`) ? `image/${fileExt}` : 'image/jpeg';
 
@@ -309,8 +337,6 @@ app.post('/addArt', upload.single('artPhoto'), async (req, res) => {
     res.status(500).json({ message: 'Penambahan gagal', error: err.message });
   }
 });
-
-
 
 app.get('/getAllArt', async (req, res) => {
   try {
