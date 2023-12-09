@@ -12,7 +12,7 @@ const multer = require('multer');
 const multerStorage = multer.memoryStorage();
 const upload = multer({ storage: multerStorage });
 const allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-const myKey = "XXXX";
+const myKey = "prayogiPalkon";
 
 
 const validateApiKey = (req, res, next) => {
@@ -35,7 +35,6 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/register', async (req, res) => {
   const { username, email, password, fullName,dateOfBirth, phone, gender, age, jobCategory, bio } = req.body;
   const userId = `US-${nanoid()}`;
-  const photoProfile = null;
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -52,7 +51,6 @@ app.post('/register', async (req, res) => {
       jobCategory,
       dateOfBirth,
       bio,
-      photoProfile,
       "customer_details": {
           "instansiBayar": null,
           "jumlahSaldo": null,
