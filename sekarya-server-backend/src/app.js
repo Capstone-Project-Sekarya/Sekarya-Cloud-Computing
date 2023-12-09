@@ -15,7 +15,6 @@ const allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 const myKey = "XXXX";
 
 
-
 const validateApiKey = (req, res, next) => {
   console.log('Validating API Key');
   const apiKey = req.headers['api-key'];
