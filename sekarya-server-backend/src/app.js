@@ -186,7 +186,6 @@ app.put('/updateProfile/:userId', upload.single('photoProfile'), async (req, res
   }
 });
 //set list foto 
-
 app.post('/addArtToProfile', upload.single('artPhoto'), async (req, res) => {
   const {
     tags,
@@ -237,7 +236,6 @@ app.post('/addArtToProfile', upload.single('artPhoto'), async (req, res) => {
   }
 });
 
-
 app.get('/artProfile/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -246,16 +244,22 @@ app.get('/artProfile/:userId', async (req, res) => {
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      const userData = querySnapshot.docs[0].data();
-      res.status(200).json({ message: 'foto found', user: { userId, ...userData } });
+      const userData = [];
+      
+      querySnapshot.forEach((doc) => {
+        userData.push({ userId, ...doc.data() });
+      });
+
+      res.status(200).json({ message: 'foto found', user: userData });
     } else {
-      res.status(404).json({ message: 'foto not found' });
+      res.status  (404).json({ message: 'foto not found' });
     }
   } catch (error) {
     console.error('Error getting user by userId:', error.message);
     res.status(500).json({ message: 'Error getting user by userId', error: error.message });
   }
 });
+
 
 app.get('/detailFoto/:listId', async (req, res) => {
   try {
@@ -694,7 +698,7 @@ app.post('/createCommisionJob', async (req, res) => {
     estimationWork,
     id_userAsArtist
   } = req.body;
-    const commisionJobId = `DG-${uuidv4()}`;
+    const commisionJobId = `CB-${nanoid()}`;
   const uploadDate = new Date().toISOString();
   try {
     const commisionDocRef = await addDoc(collection(firestore, commisionJobCollection), {
@@ -873,7 +877,7 @@ app.post('/hired_job', upload.single('fotoArt'), async (req, res) => {
     const fileExt = file.originalname.split('.').pop().toLowerCase();
     const contentType = allowedImageTypes.includes(`image/${fileExt}`) ? `image/${fileExt}` : 'image/jpeg';
 
-    const hiredJobId = `HJ-${uuidv4()}`;
+    const hiredJobId = `HJ-${nanoid()}`;
     const storageRef = ref(storage, `artPhotos/${hiredJobId}/${file.originalname}`);
 
     // Tambahkan header Content-Type saat mengunggah
@@ -991,7 +995,7 @@ app.post('/addTrackingArt', async (req, res) => {
     id_userAsCustomer
   } = req.body;
 
-  const trackingArtId = `US-${nanoid()}`;
+  const trackingArtId = `TR-${nanoid()}`;
   const tanggal_tracking = new Date().toISOString();
   try {
     const trackingDocRef = await addDoc(collection(firestore, trackingArtCollection), {
@@ -1062,7 +1066,7 @@ app.post('/revisi', async (req, res) => {
     id_userAsArtist,
     id_userAsCustomer
   } = req.body;
-  const revisionId = `US-${nanoid()}`;
+  const revisionId = `RV-${nanoid()}`;
   try {
     const revisionDocRef = await addDoc(collection(firestore, revisionCollection), {
       revisionId,
