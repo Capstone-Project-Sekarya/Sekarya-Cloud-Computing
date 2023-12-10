@@ -12,7 +12,7 @@ const multer = require('multer');
 const multerStorage = multer.memoryStorage();
 const upload = multer({ storage: multerStorage });
 const allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-const myKey = "prayogiPalkon";
+const myKey = "XXXXX";
 
 
 const validateApiKey = (req, res, next) => {
