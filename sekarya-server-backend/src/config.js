@@ -4,22 +4,17 @@ const { getFirestore } = require('firebase/firestore');
 const { Snap } = require('midtrans-client');
 const { getStorage } = require('firebase/storage');
 
+const  firebase  = require('../private/firebase.json');
+const { serverKey } = require('../private/key.json').serverKey;
+const { clientKey } = require('../private/key.json').clientKey;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCHDkZ5dfjnSSP7AvJCr4pEdySXQnwfRR8",
-  authDomain: "digitalart-35c0a.firebaseapp.com",
-  projectId: "digitalart-35c0a",
-  storageBucket: "gs://digitalart-35c0a",
-  messagingSenderId: "1073631656169",
-  appId: "1:1073631656169:web:aecbbc3121a700c4739878",
-  measurementId: "G-SGG9P463J1"
-};
 
+const firebaseConfig = firebase
 
 const snap = new Snap({
   isProduction: false,
-  serverKey: 'SB-Mid-server-W8Yo8dJWaYrWCYKDVd3L0bCO',
-  clientKey: 'SB-Mid-client-zvycud_ORH9DeW03',
+  serverKey:serverKey,
+  clientKey:clientKey
 });
 
 
