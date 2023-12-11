@@ -3,13 +3,13 @@ const { getAuth } = require('firebase/auth');
 const { getFirestore } = require('firebase/firestore');
 const { Snap } = require('midtrans-client');
 const { getStorage } = require('firebase/storage');
-
 const  firebase  = require('../private/firebase.json');
 const { serverKey } = require('../private/key.json').serverKey;
 const { clientKey } = require('../private/key.json').clientKey;
 
 
 const firebaseConfig = firebase
+
 
 const snap = new Snap({
   isProduction: false,
