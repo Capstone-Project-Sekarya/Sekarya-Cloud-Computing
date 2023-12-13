@@ -688,29 +688,59 @@ app.delete('/deleteBookmark/:userId/:artId', async (req, res) => {
 //===========================================================================================================================================================================
 
 //Commision_job==================================================================================================================================================================
-app.post('/createCommisionJob', async (req, res) => {
+app.post('/createCommisionJob', upload.single('artPhotoCommision'), async (req, res) => {
   const {
     tags,
     jobPrice,
     estimationWork,
+    deskripsiCommision,
     id_userAsArtist
   } = req.body;
-    const commisionJobId = `CB-${nanoid()}`;
+
+  const commisionJobId = `CB-${nanoid()}`;
   const uploadDate = new Date().toISOString();
+  const file = req.file;
+
+  // Periksa apakah file ada
+  if (!file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
   try {
+    // Periksa apakah file.originalname ada
+    if (!file.originalname) {
+      return res.status(400).json({ message: 'File has no original name' });
+    }
+
+    const fileExt = file.originalname.split('.').pop().toLowerCase();
+    const contentType = allowedImageTypes.includes(`image/${fileExt}`) ? `image/${fileExt}` : 'image/jpeg';
+
+    const storageRef = ref(storage, `commisionArtPhotos/${commisionJobId}/${file.originalname}`);
+
+    // Tambahkan header Content-Type saat mengunggah
+    const metadata = {
+      contentType: contentType,
+    };
+
+    await uploadBytes(storageRef, file.buffer, metadata);
+
+    const downloadURL = await getDownloadURL(storageRef);
+
     const commisionDocRef = await addDoc(collection(firestore, commisionJobCollection), {
       commisionJobId,
       tags,
       jobPrice,
       estimationWork,
       id_userAsArtist,
+      deskripsiCommision,
+      artPhotoCommision: downloadURL,
       uploadDate,
     });
 
-    res.send({ msg: 'commision job Added' });
+    res.send({ msg: 'Commision job Added', artPhotoCommision: downloadURL });
   } catch (err) {
-    console.error('commision job add failed:', err.message);
-    res.status(500).json({ message: 'add failed', error: err.message });
+    console.error('Commision job add failed:', err.message);
+    res.status(500).json({ message: 'Add failed', error: err.message });
   }
 });
 
@@ -851,52 +881,30 @@ app.get('/getCommisionCategory/:tags', async (req, res) => {
 //Hired_job==================================================================================================================================================================
 
 //pesan create job
-app.post('/hired_job', upload.single('fotoArt'), async (req, res) => {
+app.post('/hired_job', async (req, res) => {
   const {
-    commisionJobId, 
-    deskripsi_job, 
-    estimated_end, 
+    commisionJobId,
+    deskripsi_job,
+    estimated_end,
     id_userAsArtist,
     id_userAsCustomer,
     price
   } = req.body;
   const tanggalUpload = new Date().toISOString();
-  const status_job = "on demand";
-  const file = req.file;
+  const status_job = "is being offered";
 
   try {
-
-    if (!file) {
-      return res.status(400).json({ message: 'No fotoArt uploaded' });
-    }
-
-    // Memeriksa tipe gambar yang diizinkan
-    const fileExt = file.originalname.split('.').pop().toLowerCase();
-    const contentType = allowedImageTypes.includes(`image/${fileExt}`) ? `image/${fileExt}` : 'image/jpeg';
-
     const hiredJobId = `HJ-${nanoid()}`;
-    const storageRef = ref(storage, `artPhotos/${hiredJobId}/${file.originalname}`);
-
-    // Tambahkan header Content-Type saat mengunggah
-    const metadata = {
-      contentType: contentType,
-    };
-
-    await uploadBytes(storageRef, file.buffer, metadata);
-
-    // Dapatkan URL publik fotoArt yang diunggah
-    const fotoArtUrl = await getDownloadURL(storageRef);
 
     const hiredDocRef = await addDoc(collection(firestore, hiredJobCollection), {
       hiredJobId,
       commisionJobId,
       id_userAsArtist,
-      id_userAsCustomer,  
-      estimated_end, 
+      id_userAsCustomer,
+      estimated_end,
       status_job,
       tanggalUpload,
       price,
-      fotoArt: fotoArtUrl,
       "deskripsi_job": {
         "nama_art": deskripsi_job.nama_art,
         "tema_art": deskripsi_job.tema_art,
@@ -905,12 +913,13 @@ app.post('/hired_job', upload.single('fotoArt'), async (req, res) => {
       }
     });
 
-    res.send({ msg: 'Hired job Added', fotoArt: fotoArtUrl });
+    res.send({ msg: 'Hired job Added' });
   } catch (err) {
     console.error('Hired job add failed:', err.message);
     res.status(500).json({ message: 'Add failed', error: err.message });
   }
 });
+
 
 //nampilin data hired job ke costumer
 app.get('/hiredJobToCs/:id_userAsCustomer/:status_job', async (req, res) => {
@@ -982,35 +991,59 @@ app.put('/statusHiredJob/:hiredJobId', async (req, res) => {
 });
 
 //Tracking Art=====================================================================================================================================================================
-app.post('/addTrackingArt', async (req, res) => {
+app.post('/addTrackingArt', upload.single('imageTracking'), async (req, res) => {
   const {
     kategori_tracking,
     deskripsi_tracking,
     hiredJobId,
-    imageTracking,
     id_userAsArtist,
     id_userAsCustomer
   } = req.body;
 
   const trackingArtId = `TR-${nanoid()}`;
   const tanggal_tracking = new Date().toISOString();
+  const file = req.file;
+
+  // Periksa apakah file ada
+  if (!file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
   try {
+    // Periksa apakah file.originalname ada
+    if (!file.originalname) {
+      return res.status(400).json({ message: 'File has no original name' });
+    }
+
+    const fileExt = file.originalname.split('.').pop().toLowerCase();
+    const contentType = allowedImageTypes.includes(`image/${fileExt}`) ? `image/${fileExt}` : 'image/jpeg';
+
+    const storageRef = ref(storage, `trackingArtPhotos/${trackingArtId}/${file.originalname}`);
+
+    // Tambahkan header Content-Type saat mengunggah
+    const metadata = {
+      contentType: contentType,
+    };
+
+    await uploadBytes(storageRef, file.buffer, metadata);
+
+    const downloadURL = await getDownloadURL(storageRef);
+
     const trackingDocRef = await addDoc(collection(firestore, trackingArtCollection), {
       kategori_tracking,
       deskripsi_tracking,
       hiredJobId,
       tanggal_tracking,
-      imageTracking,
+      imageTracking: downloadURL,
       id_userAsArtist,
       id_userAsCustomer,
       trackingArtId,
-      revision: []
     });
 
-    res.send({ msg: 'tracking art Added' });
+    res.send({ msg: 'Tracking art Added', imageTracking: downloadURL });
   } catch (err) {
-    console.error('tracking art add failed:', err.message);
-    res.status(500).json({ message: 'add failed', error: err.message });
+    console.error('Tracking art add failed:', err.message);
+    res.status(500).json({ message: 'Add failed', error: err.message });
   }
 });
 
@@ -1168,6 +1201,5 @@ app.post('/create-payment', async (req, res) => {
   }
 });
 //=======================================================================================================================================================================
-
 
 module.exports = app;
