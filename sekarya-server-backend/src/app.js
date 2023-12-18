@@ -34,40 +34,51 @@ app.use(express.urlencoded({ extended: true }));
 
 //Autentikasi==================================================================================================================================================================
 app.post('/register', async (req, res) => {
-  const { username, email, password, fullName,dateOfBirth, phone, gender, age, jobCategory, bio } = req.body;
+  const { username, email, password, fullName, dateOfBirth, phone, gender, age, jobCategory, bio } = req.body;
   const userId = `US-${nanoid()}`;
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
 
-    const userDocRef = doc(firestore, UserCollection, user.uid);
-    await setDoc(userDocRef, {
-      userId,
-      username,
-      email,
-      fullName,
-      phone,
-      gender,
-      age,
-      jobCategory,
-      dateOfBirth,
-      bio,
-      "customer_details": {
-          "instansiBayar": null,
-          "jumlahSaldo": null,
-          "noRek": null,
-          "portofolio": null,
-          "tanggalUpdateSaldo": null,
-          "userRole": null,      
-        },
-      listFoto:[]
-    });
+  const usersCollection = collection(firestore, UserCollection);
+  const q = query(usersCollection, where('username', '==', username));
+  const querySnapshot = await getDocs(q);
 
-    res.send({ msg: 'User Added' });
-  } catch (err) {
-    console.error('Registration failed:', err.message);
-    res.status(500).json({ message: 'Registration failed', error: err.message });
+  if (!querySnapshot.empty) {
+    return res.status(400).json({ message: 'username has been used' });
+  }else{
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const photoProfile="https://firebasestorage.googleapis.com/v0/b/digitalart-35c0a/o/default.jpg?alt=media&token=605cc923-73ff-4000-85cf-9518fe338f10";
+      const userDocRef = doc(firestore, UserCollection, user.uid);
+      await setDoc(userDocRef, {
+        userId,
+        username,
+        email,
+        fullName,
+        phone,
+        gender,
+        age,
+        jobCategory,
+        dateOfBirth,
+        bio,
+        "customer_details": {
+            "instansiBayar": null,
+            "jumlahSaldo": null,
+            "noRek": null,
+            "portofolio": null,
+            "tanggalUpdateSaldo": null,
+            "userRole": null,      
+          },
+        listFoto:[],
+        photoProfile
+      });
+  
+      res.send({ msg: 'User Added' });
+    } catch (err) {
+      console.error('Registration failed:', err.message);
+      res.status(500).json({ message: 'Registration failed', error: err.message });
+    }
   }
+
 });
 
 app.post('/login', async (req, res) => {
