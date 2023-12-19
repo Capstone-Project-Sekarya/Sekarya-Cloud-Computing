@@ -357,10 +357,18 @@ app.get('/getAllArt', async (req, res) => {
     const artSnapshot = await getDocs(art);
 
     const allArt = [];
-    artSnapshot.forEach((doc) => {
+
+    for (const doc of artSnapshot.docs) {
       const artData = doc.data();
       const likes = Array.isArray(artData.likedBy) ? artData.likedBy.length : 0;
       const views = Array.isArray(artData.viewedBy) ? artData.viewedBy.length : 0;
+
+      // Fetch user data to get the profile photo
+      const listCollection = collection(firestore, UserCollection);
+      const q = query(listCollection, where('userId', '==', artData.userId));
+      const querySnapshot = await getDocs(q);
+
+      const photoProfile = querySnapshot.photoProfile || "https://firebasestorage.googleapis.com/v0/b/digitalart-35c0a/o/default.jpg?alt=media&token=605cc923-73ff-4000-85cf-9518fe338f10";
 
       const artInfo = {
         artId: artData.artId,
@@ -375,10 +383,11 @@ app.get('/getAllArt', async (req, res) => {
         views,
         likedBy: artData.likedBy || [],
         viewedBy: artData.viewedBy || [],
+        photoProfile,
       };
 
       allArt.push(artInfo);
-    });
+    }
 
     res.status(200).json(allArt);
   } catch (error) {
@@ -387,30 +396,50 @@ app.get('/getAllArt', async (req, res) => {
   }
 });
 
-//ngeliat art berdasarkan tags
 app.get('/artByTags/:tags', async (req, res) => {
   try {
     const tags = req.params.tags;
     const artsCollection = collection(firestore, ArtCollection);
     const q = query(artsCollection, where('tags', '==', tags));
-    const querySnapshot = await getDocs(q);
+    const artSnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      const artData = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const likes = Array.isArray(data.likedBy) ? data.likedBy.length : 0;
-        const views = Array.isArray(data.viewedBy) ? data.viewedBy.length : 0;
+    const allArt = [];
 
-        artData.push({ ...data, likes, views });
-      });
-      res.status(200).json({ message: 'Art found', arts: artData });
-    } else {
-      res.status(404).json({ message: 'Art not found for these tags' });
+    for (const doc of artSnapshot.docs) {
+      const artData = doc.data();
+      const likes = Array.isArray(artData.likedBy) ? artData.likedBy.length : 0;
+      const views = Array.isArray(artData.viewedBy) ? artData.viewedBy.length : 0;
+
+      // Fetch user data to get the profile photo
+      const listCollection = collection(firestore, UserCollection);
+      const q = query(listCollection, where('userId', '==', artData.userId));
+      const querySnapshot = await getDocs(q);
+
+      const photoProfile = querySnapshot.photoProfile || "https://firebasestorage.googleapis.com/v0/b/digitalart-35c0a/o/default.jpg?alt=media&token=605cc923-73ff-4000-85cf-9518fe338f10";
+
+      const artInfo = {
+        artId: artData.artId,
+        artName: artData.artName,
+        tags: artData.tags,
+        artPrice: artData.artPrice,
+        artPhoto: artData.artPhoto,
+        artDescription: artData.artDescription,
+        userId: artData.userId,
+        uploadDate: artData.uploadDate,
+        likes,
+        views,
+        likedBy: artData.likedBy || [],
+        viewedBy: artData.viewedBy || [],
+        photoProfile,
+      };
+
+      allArt.push(artInfo);
     }
+
+    res.status(200).json(allArt);
   } catch (error) {
-    console.error('Error getting art by tags:', error.message);
-    res.status(500).json({ message: 'Error getting art by tags', error: error.message });
+    console.error('Error fetching all art:', error.message);
+    res.status(500).json({ message: 'Error fetching all art', error: error.message });
   }
 });
 
