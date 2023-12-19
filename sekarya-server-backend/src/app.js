@@ -473,18 +473,40 @@ app.get('/detailArt/:artId', async (req, res) => {
   try {
     const id_art = req.params.artId;
     const artsCollection = collection(firestore, ArtCollection);
-    const q = query(artsCollection, where('artId', '==', id_art));
-    const querySnapshot = await getDocs(q);
+    const qArt = query(artsCollection, where('artId', '==', id_art));
+    const querySnapshotArt = await getDocs(qArt);
 
-    if (!querySnapshot.empty) {
-      const data = querySnapshot.docs[0].data();
+    if (!querySnapshotArt.empty) {
+      const data = querySnapshotArt.docs[0].data();
       const likes = Array.isArray(data.likedBy) ? data.likedBy.length : 0;
       const views = Array.isArray(data.viewedBy) ? data.viewedBy.length : 0;
 
-      res.status(200).json({
-        message: 'Art found',
-        art: {...data, likes, views }
-      });
+      // Fetch user data to get the user details
+      const listCollection = collection(firestore, UserCollection);
+      const qUser = query(listCollection, where('userId', '==', data.userId));
+      const querySnapshotUser = await getDocs(qUser);
+
+      if (!querySnapshotUser.empty) {
+        const userData = querySnapshotUser.docs[0].data();
+        const { userId, username, email, photoProfile } = userData;
+
+        res.status(200).json({
+          message: 'Art found',
+          art: {
+            ...data,
+            likes,
+            views,
+            user: {
+              userId,
+              username,
+              email,
+              photoProfile,
+            },
+          },
+        });
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
     } else {
       res.status(404).json({ message: 'Art not found' });
     }
