@@ -41,16 +41,20 @@ def index():
                 image_file.save('uploaded_image.jpg')
 
                 image = preprocess_image('uploaded_image.jpg')
-                prediksi_label = predict_image(image)
+                predicted_label = predict_image(image)
 
-                result = {'predicted_class': prediksi_label}
-                return jsonify(result)
+                if predicted_label == 'AI_GENERATED':
+                    return jsonify({"status": "bad request"}), 400
+                else:
+                    result = {'predicted_class': predicted_label}
+                    return jsonify(result)
             # catch (jika request tidak valid)
-            except:
-                return jsonify({"status": "bad request"})
+            except Exception as e:
+                print(e)
+                return jsonify({"status": "bad request"}), 400
         # Jika Kunci API Salah
         else:
-            return jsonify({"status": "unauthorized"})
+            return jsonify({"status": "unauthorized"}), 401
 
 
 # Memulai Server
