@@ -703,15 +703,23 @@ app.get('/bookmarkByUser/:userId', async (req, res) => {
     for (const doc of querySnapshot.docs) {
       const bookmark = doc.data();
       const artId = bookmark.artId;
+      const userId = bookmark.userId
           
       const artsCollection = collection(firestore, ArtCollection);
       const artQuery = query(artsCollection, where('artId', '==', artId));
       const artQuerySnapshot = await getDocs(artQuery);
+      const usersCollectoin = collection(firestore, UserCollection);
+      const userQuery = query(usersCollectoin, where('userId', '==', userId));
+      const userQuerySnapshot = await getDocs(userQuery);
 
-      if (!artQuerySnapshot.empty) {
+      if (!artQuerySnapshot.empty && !userQuerySnapshot.empty) {
         const artDoc = artQuerySnapshot.docs[0];
         const artData = artDoc.data();
-        bookmarksData.push({ bookmark, artData });
+
+        const userDoc = userQuerySnapshot.docs[0];
+        const userData = userDoc.data();
+
+        bookmarksData.push({ bookmark, artData, userData });
       }
     }
 
