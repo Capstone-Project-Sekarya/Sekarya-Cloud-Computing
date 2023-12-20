@@ -906,9 +906,11 @@ app.delete('/deleteCommisionJob/:commisionJobId', async (req, res) => {
   }
 });
 
+
 //nampilin semua commision job
-app.get('/getCommisionJob', async (req, res) => {
+app.get('/getCommisionJob/:userId', async (req, res) => {
   try {
+    const userId = req.params.userId;
     const commisionsJobsCollection = collection(firestore, commisionJobCollection);
     const querySnapshot = await getDocs(commisionsJobsCollection);
 
@@ -916,32 +918,45 @@ app.get('/getCommisionJob', async (req, res) => {
 
     querySnapshot.forEach((doc) => {
       const commisionData = doc.data();
-      comjobData.push(commisionData);
+
+      // Tambahkan filter untuk hanya menyertakan commision job yang bukan dimiliki oleh pengguna yang sedang login
+      if (commisionData.id_userAsArtist !== userId) {
+        comjobData.push(commisionData);
+      }
     });
 
-    res.status(200).json({ message: 'All CommisionJobretrieved', users: comjobData});
+    res.status(200).json({ message: 'Filtered CommisionJobs retrieved', users: comjobData });
   } catch (error) {
-    console.error('Error getting all CommisionJob:', error.message);
-    res.status(500).json({ message: 'Error getting all CommisionJob', error: error.message });
+    console.error('Error getting filtered CommisionJobs:', error.message);
+    res.status(500).json({ message: 'Error getting filtered CommisionJobs', error: error.message });
   }
 });
 
 // nampilin commision job berdasarkan tags
-app.get('/getCommisionCategory/:tags', async (req, res) => {
+app.get('/getCommisionCategory/:tags/:userId', async (req, res) => {
   try {
+    const userId = req.params.userId;
     const tags = req.params.tags;
-    const commisionollection = collection(firestore, 'commision_job');
-    const q = query(commisionollection, where('tags', '==', tags));
+    const commisionCollection = collection(firestore, 'commision_job');
+  
+    const q = query(commisionCollection, 
+      where('tags', '==', tags)
+    );
+
     const querySnapshot = await getDocs(q);
 
     const commisionsData = [];
 
     querySnapshot.forEach((doc) => {
       const commisionData = doc.data();
-      commisionsData.push(commisionData);
+      
+      // Tambahkan filter untuk hanya menyertakan commision job yang bukan dimiliki oleh pengguna yang sedang login
+      if (commisionData.id_userAsArtist !== userId) {
+        commisionsData.push(commisionData);
+      }
     });
 
-    res.status(200).json({ message: 'Commision jobs retrieved', commisionJobs: commisionsData });
+    res.status(200).json({ message: 'Filtered Commision jobs retrieved', commisionJobs: commisionsData });
   } catch (error) {
     console.error('Error getting commision jobs:', error.message);
     res.status(500).json({ message: 'Error getting commision jobs', error: error.message });
@@ -962,33 +977,38 @@ app.post('/hired_job', async (req, res) => {
     price
   } = req.body;
   const tanggalUpload = new Date().toISOString();
-  const status_job = "is being offered";
+  const status_job = "pending";
 
-  try {
-    const hiredJobId = `HJ-${nanoid()}`;
-
-    const hiredDocRef = await addDoc(collection(firestore, hiredJobCollection), {
-      hiredJobId,
-      commisionJobId,
-      id_userAsArtist,
-      id_userAsCustomer,
-      estimated_end,
-      status_job,
-      tanggalUpload,
-      price,
-      "deskripsi_job": {
-        "nama_art": deskripsi_job.nama_art,
-        "tema_art": deskripsi_job.tema_art,
-        "kategori_art": deskripsi_job.kategori_art,
-        "keterangan_art": deskripsi_job.keterangan_art,
-      }
-    });
-
-    res.send({ msg: 'Hired job Added' });
-  } catch (err) {
-    console.error('Hired job add failed:', err.message);
-    res.status(500).json({ message: 'Add failed', error: err.message });
+  if(id_userAsArtist == id_userAsCustomer ){
+    res.status(500).json({ message: 'hired commision job failed, you cant hired your commision job' });
+  }else{
+    try {
+      const hiredJobId = `HJ-${nanoid()}`;
+  
+      const hiredDocRef = await addDoc(collection(firestore, hiredJobCollection), {
+        hiredJobId,
+        commisionJobId,
+        id_userAsArtist,
+        id_userAsCustomer,
+        estimated_end,
+        status_job,
+        tanggalUpload,
+        price,
+        "deskripsi_job": {
+          "nama_art": deskripsi_job.nama_art,
+          "tema_art": deskripsi_job.tema_art,
+          "kategori_art": deskripsi_job.kategori_art,
+          "keterangan_art": deskripsi_job.keterangan_art,
+        }
+      });
+  
+      res.send({ msg: 'Hired job Added, please wait the artist to accepted the job' });
+    } catch (err) {
+      console.error('Hired job add failed:', err.message);
+      res.status(500).json({ message: 'Add failed', error: err.message });
+    }
   }
+
 });
 
 
